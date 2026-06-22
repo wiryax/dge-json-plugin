@@ -1,4 +1,4 @@
-module dge-json-plugin
+module github.com/wiryax/dge-json-plugin
 
 go 1.23.4
 
