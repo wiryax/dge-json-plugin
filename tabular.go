@@ -14,7 +14,7 @@ type JsonToTabular struct {
 }
 
 func (jtt *JsonToTabular) Execute(gCtx *dge.GraphContext) error {
-	rawJson, err := gCtx.GetTabularBlob(jtt.blobStorageId)
+	rawJson, err := gCtx.GetBlob(jtt.blobStorageId)
 	if err != nil {
 		return err
 	}
