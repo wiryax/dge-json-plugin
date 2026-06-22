@@ -13,6 +13,13 @@ type JsonToTabular struct {
 	tabularStorageId string
 }
 
+func NewJsonToTabular(blobId, tabularId string) *JsonToTabular {
+	return &JsonToTabular{
+		blobStorageId:    blobId,
+		tabularStorageId: tabularId,
+	}
+}
+
 func (jtt *JsonToTabular) Execute(gCtx *dge.GraphContext) error {
 	rawJson, err := gCtx.GetBlob(jtt.blobStorageId)
 	if err != nil {
