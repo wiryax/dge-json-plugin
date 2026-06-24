@@ -4,7 +4,7 @@ go 1.23.4
 
 require (
 	github.com/tidwall/gjson v1.19.0
-	github.com/wiryax/direct-graph-engine v0.4.1
+	github.com/wiryax/direct-graph-engine v0.5.0
 )
 
 require (

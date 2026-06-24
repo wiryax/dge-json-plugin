@@ -12,3 +12,5 @@ github.com/wiryax/direct-graph-engine v0.4.0 h1:U0lxUCJkwj+5CRxk7v43ZwFQ9JIKuioo
 github.com/wiryax/direct-graph-engine v0.4.0/go.mod h1:GQV8iwMPbhVDdjqGlX8rWZ/RiJyAxDtZgjuoEsAFgZ8=
 github.com/wiryax/direct-graph-engine v0.4.1 h1:yO9PUx5/hGwfKX1FothYjjNbqa6uxCTCcrkZKcIIspc=
 github.com/wiryax/direct-graph-engine v0.4.1/go.mod h1:GQV8iwMPbhVDdjqGlX8rWZ/RiJyAxDtZgjuoEsAFgZ8=
+github.com/wiryax/direct-graph-engine v0.5.0 h1:TwHI+8Z5lwbYrgnpuANoC4XXAvwaUOW5yNVUWXVwcIQ=
+github.com/wiryax/direct-graph-engine v0.5.0/go.mod h1:GQV8iwMPbhVDdjqGlX8rWZ/RiJyAxDtZgjuoEsAFgZ8=

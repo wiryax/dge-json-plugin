@@ -34,112 +34,71 @@ func (jtt *JsonToTabular) Execute(gCtx *dge.GraphContext) error {
 }
 
 func parseJsonToTabular(raw []byte) (dge.Tabular, error) {
-	if !gjson.Valid(string(raw)) {
+	s := string(raw)
+	if !gjson.Valid(s) {
 		return dge.Tabular{}, errors.New("json is not valid")
 	}
-	result := gjson.Parse(string(raw))
 
+	result := gjson.Parse(s)
 	return parseValue(result)
 }
 
-func parseObject(result gjson.Result, parentCol string) (dge.Tabular, error) {
+func parseObject(result gjson.Result, tabular *dge.Tabular, parentCol string) error {
 	var (
-		err     error
-		tabular dge.Tabular
-		stack   []dge.Tabular
+		err error
 	)
 	for key, val := range result.Map() {
 		if val.IsObject() {
-			newTabular, err := parseObject(val, parentCol+key)
+			err := parseObject(val, tabular, parentCol+key)
 			if err != nil {
-				return tabular, err
+				return err
 			}
-
-			stack = append(stack, newTabular)
 			continue
 		} else if val.IsArray() {
-			newTabular, err := parseArray(val, key)
+			err := parseArray(val, tabular, key)
 			if err != nil {
-				return tabular, err
+				return err
 			}
-			stack = append(stack, newTabular)
 			continue
 		} else {
-			err = tabular.AddColumn(func(rows []dge.Variable) [][]dge.Variable {
-				var temp [][]dge.Variable
-				temp = append(temp, append(rows, dge.ParseVariable([]byte(val.String()))))
-				return temp
-			}, parentCol+key)
-			if err != nil {
-				return tabular, err
-			}
+			tabular.AddOrSetColumn(parentCol+key, dge.ParseVariable([]byte(val.String())))
 		}
 	}
 
-	for _, s := range stack {
-		tabular, err = tabular.Merge(s)
-		if err != nil {
-			return tabular, err
-		}
-	}
-
-	return tabular, err
+	return err
 }
 
-func parseArray(result gjson.Result, parentCol string) (dge.Tabular, error) {
-	var (
-		err     error
-		tabular dge.Tabular
-		queue   []dge.Tabular
-		rows    []dge.Variable
-	)
-
+func parseArray(result gjson.Result, tabular *dge.Tabular, parentCol string) error {
 	for _, r := range result.Array() {
 		if r.IsObject() {
-			tempT, err := parseObject(r, parentCol)
+			err := parseObject(r, tabular, parentCol)
 			if err != nil {
-				return tabular, err
+				return err
 			}
-			queue = append(queue, tempT)
-			continue
 		} else if r.IsArray() {
-			tempT, err := parseArray(r, parentCol)
+			err := parseArray(r, tabular, parentCol)
 			if err != nil {
-				return tabular, err
+				return err
 			}
-			queue = append(queue, tempT)
-			continue
 		} else {
-			rows = append(rows, dge.ParseVariable([]byte(r.String())))
-			continue
+			tabular.AddOrSetColumn(parentCol, dge.ParseVariable([]byte(r.String())))
 		}
 	}
 
-	if rows != nil {
-		tabular = *dge.MakeTabular([]string{parentCol})
-		for _, row := range rows {
-			err = tabular.AddRow(row)
-			if err != nil {
-				return tabular, err
-			}
-		}
-	}
-
-	for _, s := range queue {
-		tabular, err = tabular.Merge(s)
-		if err != nil {
-			return tabular, err
-		}
-	}
-
-	return tabular, err
+	return nil
 }
 
 func parseValue(result gjson.Result) (dge.Tabular, error) {
+	var (
+		tabular = dge.MakeTabular()
+		err     error
+	)
 	if result.IsObject() {
-		return parseObject(result, "")
+		err = parseObject(result, tabular, "")
 	} else if result.IsArray() {
-		return parseArray(result, "")
+		err = parseArray(result, tabular, "")
+	} else {
+		err = fmt.Errorf("cannot parse json with %s type", result.Type)
 	}
-	return dge.Tabular{}, fmt.Errorf("cannot parse json with %s type", result.Type)
+	return *tabular, err
 }
